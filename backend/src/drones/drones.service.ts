@@ -23,4 +23,8 @@ export class DronesService {
 
     return await this.droneRepo.save(drone);
   }
+
+  async findAll(): Promise<Drone[]> {
+    return this.droneRepo.find({ order: { id: 'ASC' } });
+  }
 }
