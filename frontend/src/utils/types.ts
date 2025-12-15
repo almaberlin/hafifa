@@ -9,7 +9,7 @@ export type DronePayload = {
 
 export type Drone = {
   id: number;
-  coordinates: { x: number; y: number };
+  coordinates: { x: number; y: number } | string;
   type: DroneType;
   altitude: number;
 };

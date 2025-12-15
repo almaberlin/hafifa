@@ -59,8 +59,10 @@ export default function MapView({
         img.style.filter = "drop-shadow(0 2px 4px rgba(0,0,0,0.35))";
       // simple “icon” look; we can swap to an image later
 
+      const [lng, lat] = toLngLat(drone.coordinates);
+
       const marker = new maplibregl.Marker({ element: img })
-        .setLngLat([drone.coordinates.x, drone.coordinates.y]) // [lng, lat]
+        .setLngLat([lng, lat])
         .addTo(map);
 
       markersRef.current.set(drone.id, marker);
@@ -73,4 +75,19 @@ export default function MapView({
       style={{ width: "100vw", height: "100vh", overflow: "hidden" }}
     />
   );
+}
+
+function toLngLat(
+  coordinates: { x: number; y: number } | string
+): [number, number] {
+  if (typeof coordinates === "object") {
+    return [Number(coordinates.x), Number(coordinates.y)];
+  }
+
+  const match = coordinates.match(/-?\d+(\.\d+)?/g);
+  if (!match || match.length < 2) {
+    throw new Error(`Invalid point format: ${coordinates}`);
+  }
+
+  return [Number(match[0]), Number(match[1])];
 }
