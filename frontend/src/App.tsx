@@ -1,14 +1,30 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { socket } from "./socket";
-import type { DronePayload } from "./utils/types";
+import type { Drone } from "./utils/types";
 import MapView from "./components/MapView";
+import api from "./api";
 
 export default function App() {
+  const [drones, setDrones] = useState<Drone[]>([]);
 
   useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.drones().getAll();
+        setDrones(res.data);
+      } catch (e) {
+        console.error("Failed to fetch drones:", e);
+      }
+    })();
+  }, []);
+  
+  useEffect(() => {
 
-    const onDroneReceived = async (drone: DronePayload) => {
-        console.log("Received droneGenerated:", drone);
+    const onDroneReceived = (saved: Drone) => {
+      setDrones((prev) => {
+        if (prev.some((d) => d.id === saved.id)) return prev;
+        return [...prev, saved];
+      });
     };
 
     socket.on("droneSaved", onDroneReceived);
@@ -18,5 +34,5 @@ export default function App() {
     };
   }, []);
 
-  return <MapView/>;
+  return <MapView drones={drones}/>;
 }
