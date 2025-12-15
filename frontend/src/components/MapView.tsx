@@ -50,16 +50,16 @@ export default function MapView({
     for (const drone of drones) {
       if (markersRef.current.has(drone.id)) continue;
 
-      const el = document.createElement("div");
-      el.title = `Drone #${drone.id}\nType: ${drone.type}\nAlt: ${drone.altitude}`;
-      el.style.width = "18px";
-      el.style.height = "18px";
-      el.style.borderRadius = "999px";
-      el.style.border = "2px solid white";
-      el.style.boxShadow = "0 0 6px rgba(0,0,0,0.35)";
+      const img = document.createElement("img");
+      img.src = "/drone_icon.png"
+        img.alt = "drone";
+        img.style.width = "28px";
+        img.style.height = "28px";
+        img.style.cursor = "pointer";
+        img.style.filter = "drop-shadow(0 2px 4px rgba(0,0,0,0.35))";
       // simple “icon” look; we can swap to an image later
 
-      const marker = new maplibregl.Marker({ element: el })
+      const marker = new maplibregl.Marker({ element: img })
         .setLngLat([drone.coordinates.x, drone.coordinates.y]) // [lng, lat]
         .addTo(map);
 
