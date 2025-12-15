@@ -26,10 +26,10 @@ export default function MapView({
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: "https://demotiles.maplibre.org/style.json",
-      center,
-      zoom,
     });
 
+    map.setCenter(center);
+    map.setZoom(zoom);
     map.addControl(new maplibregl.NavigationControl(), "top-right");
 
     mapRef.current = map;
@@ -41,7 +41,7 @@ export default function MapView({
       map.remove();
       mapRef.current = null;
     };
-  }, [center, zoom]);
+  }, []);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -57,7 +57,6 @@ export default function MapView({
         img.style.height = "28px";
         img.style.cursor = "pointer";
         img.style.filter = "drop-shadow(0 2px 4px rgba(0,0,0,0.35))";
-      // simple “icon” look; we can swap to an image later
 
       const [lng, lat] = toLngLat(drone.coordinates);
 
