@@ -5,6 +5,7 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { DronesService } from 'src/drones/drones.service';
 import { DroneType } from 'src/drones/droneType.enum';
 
 type DronePayload = {
@@ -27,15 +28,31 @@ export class RealtimeGateway
   server: Server;
 
   private intervalId: NodeJS.Timeout | null = null;
+  private isTickRunning = false;
+
+  constructor(private readonly dronesService: DronesService) {}
 
   handleConnection(client: Socket) {
     console.log('Client connected:', client.id);
 
     if (!this.intervalId) {
       this.intervalId = setInterval(() => {
-        const drone = this.generateRandomDrone();
-        this.server.emit('droneGenerated', drone);
-        console.log('Emitted droneGenerated:', drone);
+        void (async () => {
+          if (this.isTickRunning) return;
+          this.isTickRunning = true;
+
+          try {
+            const dto = this.generateRandomDrone();
+            const savedDrone = await this.dronesService.create(dto);
+
+            this.server.emit('droneSaved', savedDrone);
+            console.log('Saved & emitted droneSaved:', savedDrone);
+          } catch (err) {
+            console.error('Failed to generate/save drone:', err);
+          } finally {
+            this.isTickRunning = false;
+          }
+        })();
       }, 10_000);
     }
   }
