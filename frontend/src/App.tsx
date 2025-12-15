@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { socket } from "./socket";
 import type { DronePayload } from "./utils/types";
+import MapView from "./components/MapView";
 
 export default function App() {
 
@@ -17,5 +18,5 @@ export default function App() {
     };
   }, []);
 
-  return <div>Listening for drones… (check console)</div>;
+  return <MapView/>;
 }
