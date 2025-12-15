@@ -1,5 +1,5 @@
 import axios, { type AxiosResponse } from "axios";
-import type { DronePayload, Drone } from "../utils/types";
+import type { Drone } from "../utils/types";
 
 const axiosInstance = axios.create({
   baseURL: "http://localhost:3000/",
@@ -8,10 +8,8 @@ const axiosInstance = axios.create({
 export default {
     drones() {
         return {
-            create: (
-                data: DronePayload,
-            ): Promise<AxiosResponse<Drone>> => 
-                axiosInstance.post("drones", data),      
+            getAll: (): Promise<AxiosResponse<Drone[]>> =>
+                axiosInstance.get("drones"),
         };
     },
 
