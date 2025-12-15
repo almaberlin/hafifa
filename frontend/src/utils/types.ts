@@ -1,6 +1,6 @@
 export type DroneType = "תוקף" | "תצפית" | "מיירט" | "מתאבד"; 
 
-export type CreateDroneDto = {
+export type DronePayload = {
   latitude: number;
   longitude: number;
   type: DroneType;
