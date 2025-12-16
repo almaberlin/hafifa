@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import maplibregl, { Marker, type Map as MapLibreMap } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { Drone } from "../utils/types";
@@ -19,6 +19,8 @@ export default function MapView({
   const popupRef = useRef<maplibregl.Popup | null>(null);
   const markersRef = useRef<Map<number, Marker>>(new Map());
 
+  const [isMapReady, setIsMapReady] = useState<boolean>(false);
+
   useEffect(() => {
     if (!containerRef.current) return;
     if (mapRef.current) return;
@@ -31,7 +33,6 @@ export default function MapView({
     });
 
     map.addControl(new maplibregl.NavigationControl(), "top-right");
-
     mapRef.current = map;
 
     popupRef.current = new maplibregl.Popup({
@@ -40,7 +41,10 @@ export default function MapView({
       offset: 18,
     });
 
-    setTimeout(() => map.resize(), 0);
+    map.on("load", () => {
+        setIsMapReady(true);
+        map.resize();
+     });
 
     return () => {
       markersRef.current.forEach((m) => m.remove());
@@ -49,12 +53,14 @@ export default function MapView({
       mapRef.current = null;
       popupRef.current?.remove();
       popupRef.current = null;
+
+      setIsMapReady(false);
     };
   }, []);
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
+    if (!map || !isMapReady) return;
 
     for (const drone of drones) {
       if (markersRef.current.has(drone.id)) continue;
@@ -76,13 +82,10 @@ export default function MapView({
       markersRef.current.set(drone.id, marker);
 
       const popup = popupRef.current;
-
       if (!popup) return;
 
       img.addEventListener("click", (e) => {
         e.stopPropagation();
-
-        const [lng, lat] = toLngLat(drone.coordinates);
 
         const html = `
             <div style="font-family: system-ui; font-size: 13px; line-height: 1.35; color: black;">
@@ -95,7 +98,7 @@ export default function MapView({
         popup.setLngLat([lng, lat]).setHTML(html).addTo(map);
       });
     }
-  }, [drones]);
+  }, [drones, isMapReady]);
 
   return (
     <div
